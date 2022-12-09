@@ -2,13 +2,14 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/fimreal/goutils/ezap"
 	"github.com/gin-gonic/gin"
 )
 
-const port = ":3000"
+var port = ":" + os.Getenv("PORT")
 
 func main() {
 	gin.SetMode(gin.ReleaseMode)
