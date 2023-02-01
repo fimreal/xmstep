@@ -76,8 +76,18 @@ func getAccount(username, password string) (*Account, error) {
 	if err != nil {
 		return account, err
 	}
-	location, _ := res.Location()
+	location, err := res.Location()
+	if err != nil {
+		return account, errors.New("登录遇到问题, " + res.Status)
+	}
+	if location.Query().Get("error") == "401" {
+		return account, errors.New("账号密码不正确")
+	}
 	access := location.Query().Get("access")
+	if len(access) == 0 {
+		ezap.Errorf("Header[location]: %s", location.Query().Encode())
+		return account, errors.New("获取 access 失败")
+	}
 	ezap.Debug("获取到登录 token: ", access)
 
 	accountUrl := "https://account.huami.com/v2/client/login"
@@ -107,6 +117,7 @@ func getAccount(username, password string) (*Account, error) {
 	if err != nil {
 		return account, err
 	}
+	ezap.Debugf("Account details: %s", string(body))
 	err = json.Unmarshal(body, &account)
 	if err != nil {
 		return account, err
@@ -140,7 +151,8 @@ func (a *Account) set(step int, t time.Time) (err error) {
 	}
 
 	if msg, ok := res["message"]; !ok || msg.(string) != "success" {
-		return errors.New("修改步数失败" + msg.(string))
+		ezap.Errorf("修改步数出错了, 请求返回: %v+", res)
+		return errors.New("修改步数失败: " + msg.(string))
 	}
 	return
 }

@@ -12,6 +12,7 @@ import (
 var port = ":" + os.Getenv("PORT")
 
 func main() {
+	// ezap.SetLevel("debug")
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.POST("/run", run)
@@ -42,7 +43,7 @@ func run(ctx *gin.Context) {
 		step     = req.Step
 		date     = req.Date
 	)
-	ezap.Infof("准备设置步数 username: %s, password: %s, step: %s, date: %s", username, password, step, date)
+	ezap.Infof("准备设置步数 username: %s, password: %s, step: %d, date: %s", username, password, step, date)
 
 	// 检查是否自定义时间
 	t := time.Now()
